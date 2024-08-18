@@ -1,10 +1,10 @@
 // Supabase
 import { supabase } from "./client";
 
-const signInWithPhone = async (phone, password) => {
+const signInWithEmail = async (email, password) => {
   try {
-    const { error } = await supabase.auth.signInWithPhone({
-      phone,
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
       password,
     });
     if (error) throw error;
@@ -13,14 +13,14 @@ const signInWithPhone = async (phone, password) => {
   }
 };
 
-const signUpWithPhone = async (phone, password) => {
+const signUpWithEmail = async (email, password) => {
   try {
-    const { data: { session }, error } = await supabase.auth.signUpWithPhone({
-      phone,
+    const { data: { user }, error } = await supabase.auth.signUp({
+      email,
       password,
     });
     if (error) throw error;
-    if (!session) throw new Error("Please check your phone for verification code!");
+    if (!user) throw new Error("Please check your email for verification link!");
   } catch (error) {
     throw error;
   }
@@ -35,4 +35,4 @@ const signOut = async () => {
   }
 };
 
-export { signInWithPhone, signUpWithPhone, signOut };
+export { signInWithEmail, signUpWithEmail, signOut };
