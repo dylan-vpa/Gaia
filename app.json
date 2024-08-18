@@ -7,7 +7,16 @@
     "plugins": [
       "expo-router"
     ],
-    "name": "app",
-    "slug": "app"
+    "name": "Gaia",
+    "slug": "gaia",
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "c57f3849-015f-40ed-92e1-83adf512ccd9"
+      }
+    },
+    "owner": "dylan.vpa"
   }
 }
