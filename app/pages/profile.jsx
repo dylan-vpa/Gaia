@@ -3,8 +3,8 @@ import { View, Text, TouchableOpacity, Alert, Image } from "react-native";
 import { useState, useEffect } from "react";
 import { router } from "expo-router";
 import { ActivityIndicator } from "react-native";
-import * as ImagePicker from 'expo-image-picker';
-import * as FileSystem from 'expo-file-system';
+import * as ImagePicker from "expo-image-picker";
+import * as FileSystem from "expo-file-system";
 
 //Supabase
 import { signOut } from "../../utils/supabase/actions";
@@ -59,24 +59,24 @@ const Profile = () => {
         aspect: [1, 1],
         quality: 1,
       });
-  
+
       if (!result.canceled) {
         const { uri } = result.assets[0];
-        const fileName = uri.split('/').pop();
-  
+        const fileName = uri.split("/").pop();
+
         console.log("URI seleccionada:", uri);
         console.log("Nombre del archivo:", fileName);
-  
+
         // Verificar si el archivo existe
         const fileInfo = await FileSystem.getInfoAsync(uri);
         console.log("Información del archivo:", fileInfo);
-  
+
         const { data, error } = await uploadProfilePicture(uri, fileName);
-        
+
         if (error) {
           throw new Error(error);
         }
-  
+
         if (data && data.publicUrl) {
           setProfilePicture(data.publicUrl);
           Alert.alert("Éxito", "Foto de perfil actualizada");

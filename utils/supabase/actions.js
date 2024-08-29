@@ -1,7 +1,3 @@
-//Expo
-import * as FileSystem from 'expo-file-system';
-import * as ImageManipulator from 'expo-image-manipulator';
-
 // Supabase
 import { supabase } from "./client";
 
@@ -152,22 +148,21 @@ const deleteComment = async (userId, commentId) => {
 
 const deletePost = async (userId, postId) => {
   await supabase.from("posts").delete().eq("id", postId).eq("user_id", userId);
-};
+};  
 
 const checkLikeExists = async (userId, postId) => {
   const { data, error } = await supabase
     .from('likes')
     .select('id')
     .eq('user_id', userId)
-    .eq('post_id', postId)
-    .single();
+    .eq('post_id', postId);
 
   if (error) {
     console.error("Error al verificar el like:", error);
     return false;
   }
 
-  return !!data;
+  return data.length > 0;
 };
 
 //Profile
@@ -184,8 +179,6 @@ const fetchProfilePicture = async () => {
             if (error) throw error
             
             if (data?.avatar_url) {
-                console.log("URL de la imagen obtenida:", data.avatar_url);
-                // Asegurarse de que la URL es absoluta
                 const fullUrl = data.avatar_url.startsWith('http') 
                     ? data.avatar_url 
                     : `${supabase.supabaseUrl}/storage/v1/object/public/profiles/${data.avatar_url}`;
@@ -194,7 +187,6 @@ const fetchProfilePicture = async () => {
             return null;
         }
     } catch (error) {
-        console.error('Error al obtener la foto de perfil:', error.message);
         return null;
     }
 }
@@ -205,12 +197,8 @@ const uploadProfilePicture = async (uri) => {
     
     if (!user) throw new Error("Usuario no autenticado");
 
-    console.log("URI de la imagen a subir:", uri);
-
-    // Obtener el nombre del archivo de la URI
     const fileName = uri.split('/').pop();
 
-    // Subir el archivo directamente
     const { data, error } = await supabase.storage
       .from('profiles')
       .upload(`${user.id}/${fileName}`, {
@@ -220,7 +208,6 @@ const uploadProfilePicture = async (uri) => {
 
     if (error) throw error;
 
-    // Obtener la URL pública
     const { data: publicUrlData } = supabase.storage
       .from('profiles')
       .getPublicUrl(`${user.id}/${fileName}`);
@@ -229,7 +216,6 @@ const uploadProfilePicture = async (uri) => {
       throw new Error("No se pudo obtener la URL pública de la imagen");
     }
 
-    // Actualizar la URL de la foto de perfil en la tabla de perfiles
     const { error: updateError } = await supabase
       .from('profiles')
       .update({ avatar_url: publicUrlData.publicUrl })
@@ -237,13 +223,73 @@ const uploadProfilePicture = async (uri) => {
 
     if (updateError) throw updateError;
 
-    console.log("URL pública de la imagen subida:", publicUrlData.publicUrl);
-
     return { data: publicUrlData, error: null };
   } catch (error) {
-    console.error('Error detallado al subir la imagen:', error);
     return { data: null, error: error.message };
   }
+};
+
+// Juegos
+const fetchGames = async () => {
+  try {
+    const { data, error } = await supabase
+      .from("games")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      throw error;
+    }
+    
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const fetchGameQuestions = async (gameId) => {
+  const { data, error } = await supabase
+    .from("game_questions")
+    .select("*")
+    .eq("game_id", gameId)
+    .order("question_order", { ascending: true });
+
+  if (error) {
+    console.error("Error al obtener preguntas del juego:", error);
+    return [];
+  }
+
+  return data;
+};
+
+const saveGameScore = async (userId, gameId, score) => {
+  const { data, error } = await supabase
+    .from("game_scores")
+    .insert({ user_id: userId, game_id: gameId, score: score })
+    .select();
+
+  if (error) {
+    console.error("Error al guardar puntaje:", error);
+    throw error;
+  }
+
+  return data[0];
+};
+
+const fetchUserGameScores = async (userId, gameId) => {
+  const { data, error } = await supabase
+    .from("game_scores")
+    .select("*")
+    .eq("user_id", userId)
+    .eq("game_id", gameId)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Error al obtener puntajes del usuario:", error);
+    return [];
+  }
+
+  return data;
 };
 
 export {
@@ -260,5 +306,9 @@ export {
   deleteComment,
   fetchProfilePicture,
   uploadProfilePicture,
-  checkLikeExists
+  checkLikeExists,
+  fetchGames,
+  fetchGameQuestions,
+  saveGameScore,
+  fetchUserGameScores
 };

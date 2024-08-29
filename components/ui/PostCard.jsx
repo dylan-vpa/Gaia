@@ -1,10 +1,26 @@
 //Expo & React Native
 import React, { useState, useEffect, useCallback } from "react";
-import { View, Text, TouchableOpacity, TextInput, FlatList, Modal, Image } from "react-native";
-import { Ionicons } from '@expo/vector-icons';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  TextInput,
+  FlatList,
+  Modal,
+  Image,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
 //Supabase
-import { likePost, deletePost, fetchComments, createComment, deleteComment, fetchProfilePicture, checkLikeExists } from "../../utils/supabase/actions";
+import {
+  likePost,
+  deletePost,
+  fetchComments,
+  createComment,
+  deleteComment,
+  fetchProfilePicture,
+  checkLikeExists,
+} from "../../utils/supabase/actions";
 
 //Colors
 import { colors } from "../../constants";
@@ -20,11 +36,7 @@ const PostCard = ({ post, session, onPostsChange }) => {
 
   useEffect(() => {
     const initializeCard = async () => {
-      await Promise.all([
-        getProfilePicture(),
-        checkIfLiked(),
-        loadComments()
-      ]);
+      await Promise.all([getProfilePicture(), checkIfLiked(), loadComments()]);
     };
 
     initializeCard();
@@ -38,13 +50,11 @@ const PostCard = ({ post, session, onPostsChange }) => {
 
   const getProfilePicture = useCallback(async () => {
     const pictureUrl = await fetchProfilePicture(post.user_id);
-    console.log("URL de la imagen en PostCard:", pictureUrl);
     setProfilePicture(pictureUrl);
     setImageError(false);
   }, [post.user_id]);
 
   const handleImageError = () => {
-    console.error("Error al cargar la imagen:", profilePicture);
     setImageError(true);
   };
 
@@ -57,31 +67,27 @@ const PostCard = ({ post, session, onPostsChange }) => {
     }
   };
 
-  // Cargar comentarios
   const loadComments = async () => {
     const fetchedComments = await fetchComments(post.id);
     setComments(fetchedComments);
   };
 
-  // Manejar el "Me gusta" del post
   const handleLikePost = async () => {
     try {
-      setIsLikedByUser(!isLikedByUser); // Optimistic update
+      setIsLikedByUser(!isLikedByUser);
       await likePost(session.user.id, post.id);
       onPostsChange();
     } catch (error) {
-      setIsLikedByUser(!isLikedByUser); // Revert if error
+      setIsLikedByUser(!isLikedByUser);
       console.error("Error al dar like:", error);
     }
   };
 
-  // Manejar la eliminación del post
   const handleDeletePost = async () => {
     await deletePost(session.user.id, post.id);
     onPostsChange();
   };
 
-  // Manejar la creación de un comentario
   const handleCreateComment = async () => {
     if (newComment.trim() === "") return;
     await createComment(session.user.id, post.id, newComment);
@@ -89,12 +95,13 @@ const PostCard = ({ post, session, onPostsChange }) => {
     loadComments();
   };
 
-  // Manejar la eliminación de un comentario
   const handleDeleteComment = async (commentId) => {
     try {
       await deleteComment(session.user.id, commentId);
       // Actualizar la lista de comentarios localmente
-      setComments(prevComments => prevComments.filter(comment => comment.id !== commentId));
+      setComments((prevComments) =>
+        prevComments.filter((comment) => comment.id !== commentId)
+      );
     } catch (error) {
       console.error("Error al eliminar el comentario:", error);
     }
@@ -114,29 +121,40 @@ const PostCard = ({ post, session, onPostsChange }) => {
         )}
         <View className="ml-3">
           <Text className="font-bold">{post.profiles.name}</Text>
-          <Text className="text-gray-500 text-sm">{new Date(post.created_at).toLocaleDateString()}</Text>
+          <Text className="text-gray-500 text-sm">
+            {new Date(post.created_at).toLocaleDateString()}
+          </Text>
         </View>
       </View>
       <Text className="mb-4">{post.content}</Text>
       <View className="flex-row justify-between items-center">
-        <TouchableOpacity onPress={handleLikePost} className="flex-row items-center">
-          <Ionicons 
-            name={isLikedByUser ? "heart" : "heart-outline"} 
-            size={20} 
-            color={isLikedByUser ? colors.primary : "gray"} 
+        <TouchableOpacity
+          onPress={handleLikePost}
+          className="flex-row items-center"
+        >
+          <Ionicons
+            name={isLikedByUser ? "heart" : "heart-outline"}
+            size={20}
+            color={isLikedByUser ? colors.primary : "gray"}
           />
           <Text className="ml-2 text-gray-500">{post.likes_count || 0}</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => setShowComments(!showComments)} className="flex-row items-center">
-          <Ionicons 
-            name={showComments ? "chatbubble" : "chatbubble-outline"} 
-            size={20} 
-            color={showComments ? colors.primary : "gray"} 
+        <TouchableOpacity
+          onPress={() => setShowComments(!showComments)}
+          className="flex-row items-center"
+        >
+          <Ionicons
+            name={showComments ? "chatbubble" : "chatbubble-outline"}
+            size={20}
+            color={showComments ? colors.primary : "gray"}
           />
           <Text className="ml-2 text-gray-500">{comments.length}</Text>
         </TouchableOpacity>
         {post.user_id === session?.user?.id && (
-          <TouchableOpacity onPress={() => setShowDeleteModal(true)} className="flex-row items-center">
+          <TouchableOpacity
+            onPress={() => setShowDeleteModal(true)}
+            className="flex-row items-center"
+          >
             <Ionicons name="ellipsis-horizontal" size={20} color="gray" />
           </TouchableOpacity>
         )}
@@ -146,10 +164,10 @@ const PostCard = ({ post, session, onPostsChange }) => {
           <FlatList
             data={comments}
             renderItem={({ item }) => (
-              <Comment 
-                comment={item} 
-                session={session} 
-                onDeleteComment={handleDeleteComment} 
+              <Comment
+                comment={item}
+                session={session}
+                onDeleteComment={handleDeleteComment}
               />
             )}
             keyExtractor={(item) => item.id.toString()}
@@ -161,13 +179,16 @@ const PostCard = ({ post, session, onPostsChange }) => {
               placeholder="Escribe un comentario..."
               className="flex-1 border border-gray-300 rounded-full px-4 py-2"
             />
-            <TouchableOpacity onPress={handleCreateComment} className="bg-primary rounded-full p-2 ml-2 justify-center">
+            <TouchableOpacity
+              onPress={handleCreateComment}
+              className="bg-primary rounded-full p-2 ml-2 justify-center"
+            >
               <Ionicons name="send" size={20} color="white" />
             </TouchableOpacity>
           </View>
         </View>
       )}
-        
+
       <Modal
         animationType="slide"
         transparent={true}
@@ -176,13 +197,15 @@ const PostCard = ({ post, session, onPostsChange }) => {
       >
         <View className="flex-1 justify-end bg-transparent bg-opacity-50">
           <View className="bg-white px-4 py-6 rounded-t-lg">
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={handleDeletePost}
               className="py-6 border-b border-slate-200"
             >
-              <Text className="text-red-500 text-center">Eliminar publicación</Text>
+              <Text className="text-red-500 text-center">
+                Eliminar publicación
+              </Text>
             </TouchableOpacity>
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={() => setShowDeleteModal(false)}
               className="py-6"
             >

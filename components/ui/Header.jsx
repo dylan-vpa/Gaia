@@ -13,15 +13,21 @@ const Header = () => {
   const [imageError, setImageError] = useState(false);
 
   const getProfilePicture = useCallback(async () => {
-    const pictureUrl = await fetchProfilePicture();
-    console.log("URL de la imagen en Header:", pictureUrl);
-    setProfilePicture(pictureUrl);
-    setImageError(false);
+    try {
+      const pictureUrl = await fetchProfilePicture();
+      if (pictureUrl) {
+        setProfilePicture(pictureUrl);
+        setImageError(false);
+      }
+    } catch (error) {
+      console.error("Error al obtener la imagen de perfil:", error);
+      setImageError(true);
+    }
   }, []);
 
   useEffect(() => {
     getProfilePicture();
-  }, []);
+  }, [getProfilePicture]);
 
   const handleImageError = () => {
     console.error("Error al cargar la imagen:", profilePicture);
@@ -36,7 +42,6 @@ const Header = () => {
             source={{ uri: profilePicture }}
             className="w-10 h-10 rounded-full"
             onError={handleImageError}
-            onLoad={() => console.log("Imagen cargada correctamente")}
           />
         ) : (
           <Ionicons name="person-circle-outline" size={40} color="gray" />

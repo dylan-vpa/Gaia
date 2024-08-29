@@ -1,17 +1,28 @@
 //Expo & React Native
-import React, { useState, useEffect, useCallback } from "react";
-import { View, TextInput, FlatList, TouchableOpacity, Text, ActivityIndicator, Modal } from "react-native";
+import { useState, useEffect, useCallback } from "react";
+import {
+  View,
+  TextInput,
+  FlatList,
+  TouchableOpacity,
+  Text,
+  ActivityIndicator,
+  Modal,
+} from "react-native";
 import { router } from "expo-router";
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons } from "@expo/vector-icons";
 
 //Components
 import Header from "../../components/ui/Header";
 import PostCard from "../../components/ui/PostCard";
 
 //Supabase
-import { checkSession, fetchPosts, createPost } from "../../utils/supabase/actions";
+import {
+  checkSession,
+  fetchPosts,
+  createPost,
+} from "../../utils/supabase/actions";
 
-// Componente principal Home
 const Home = () => {
   const [session, setSession] = useState(null);
   const [posts, setPosts] = useState([]);
@@ -19,7 +30,6 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
 
-  // Función para cargar las publicaciones
   const loadPosts = useCallback(async () => {
     setLoading(true);
     const fetchedPosts = await fetchPosts();
@@ -28,7 +38,6 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
-    // Función para inicializar la página de inicio
     const initializeHome = async () => {
       const currentSession = await checkSession();
       setSession(currentSession);
@@ -41,7 +50,6 @@ const Home = () => {
     initializeHome();
   }, [loadPosts]);
 
-  // Función para manejar la creación de una nueva publicación
   const handleCreatePost = async () => {
     if (newPost.trim() === "" || !session) return;
     await createPost(session.user.id, newPost);
@@ -49,14 +57,12 @@ const Home = () => {
     loadPosts();
   };
 
-  // Función para renderizar cada tarjeta de publicación
-  const renderPostCard = useCallback(({ item }) => (
-    <PostCard
-      post={item}
-      session={session}
-      onPostsChange={loadPosts}
-    />
-  ), [session, loadPosts]);
+  const renderPostCard = useCallback(
+    ({ item }) => (
+      <PostCard post={item} session={session} onPostsChange={loadPosts} />
+    ),
+    [session, loadPosts]
+  );
 
   if (loading) {
     return (
