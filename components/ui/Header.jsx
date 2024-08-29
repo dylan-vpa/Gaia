@@ -6,6 +6,7 @@ import { useRouter } from "expo-router";
 
 //Supabase
 import { fetchProfilePicture } from "../../utils/supabase/actions";
+import { supabase } from "../../utils/supabase/client";
 
 const Header = () => {
   const router = useRouter();
@@ -14,10 +15,13 @@ const Header = () => {
 
   const getProfilePicture = useCallback(async () => {
     try {
-      const pictureUrl = await fetchProfilePicture();
-      if (pictureUrl) {
-        setProfilePicture(pictureUrl);
-        setImageError(false);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const pictureUrl = await fetchProfilePicture(user.id);
+        if (pictureUrl) {
+          setProfilePicture(pictureUrl);
+          setImageError(false);
+        }
       }
     } catch (error) {
       console.error("Error al obtener la imagen de perfil:", error);

@@ -100,27 +100,33 @@ const GameQuestions = () => {
     }
 
     return (
-      <View className="bg-white p-4 mb-4 rounded-lg shadow">
-        <Text className="text-lg font-bold mb-2">
+      <View className="bg-white p-6 mb-4 rounded-2xl shadow-lg">
+        <Text className="text-xl font-bold mb-6 text-slate-800">
           {currentQuestion.question}
         </Text>
         {answers.map((answer, index) => (
           <TouchableOpacity
             key={index}
-            className={`p-2 mb-2 rounded ${
-              selectedAnswer === answer ? "bg-blue-300" : "bg-blue-100"
+            className={`p-4 mb-4 rounded-full ${
+              selectedAnswer === answer
+                ? "bg-slate-200"
+                : "bg-slate-100"
             }`}
             onPress={() => handleAnswerSelect(answer)}
           >
-            <Text>{answer}</Text>
+            <Text className={`text-lg text-center ${
+              selectedAnswer === answer ? "text-slate-800 font-semibold" : "text-slate-700"
+            }`}>
+              {answer}
+            </Text>
           </TouchableOpacity>
         ))}
         {selectedAnswer && (
           <TouchableOpacity
-            className="bg-green-500 p-2 rounded mt-4"
+            className="bg-green-700 p-4 rounded-full mt-6 shadow-md"
             onPress={handleNextQuestion}
           >
-            <Text className="text-white text-center">
+            <Text className="text-white text-center text-lg font-bold">
               {currentQuestionIndex === questions.length - 1
                 ? "Finalizar"
                 : "Siguiente pregunta"}
@@ -132,46 +138,55 @@ const GameQuestions = () => {
   };
 
   const renderGameFinished = () => (
-    <View className="bg-white p-4 mb-4 rounded-lg shadow">
-      <Text className="text-2xl font-bold text-center mb-4">
-        Juego terminado. Tu puntaje: {score} de {questions.length}
+    <View className="bg-white p-6 mb-4 rounded-2xl shadow-lg">
+      <Text className="text-3xl font-bold text-center mb-6 text-green-800">
+        ¡Juego terminado!
+      </Text>
+      <Text className="text-2xl text-center mb-8 text-green-600">
+        Tu puntaje: {score} de {questions.length}
       </Text>
       <TouchableOpacity
-        className="bg-blue-500 p-2 rounded mb-2"
+        className="bg-green-700 p-4 rounded-full mb-4 shadow-md"
         onPress={restartGame}
       >
-        <Text className="text-white text-center">Jugar de nuevo</Text>
+        <Text className="text-white text-center text-lg font-bold">Jugar de nuevo</Text>
       </TouchableOpacity>
       <TouchableOpacity
-        className="bg-gray-500 p-2 rounded mb-2"
+        className="bg-blue-600 p-4 rounded-full mb-4 shadow-md"
         onPress={() => router.push("./games")}
       >
-        <Text className="text-white text-center">Volver a juegos</Text>
+        <Text className="text-white text-center text-lg font-bold">Volver a juegos</Text>
       </TouchableOpacity>
       <TouchableOpacity
-        className="bg-green-500 p-2 rounded"
+        className="bg-purple-600 p-4 rounded-full shadow-md"
         onPress={() => router.push("./home")}
       >
-        <Text className="text-white text-center">Volver al inicio</Text>
+        <Text className="text-white text-center text-lg font-bold">Volver al inicio</Text>
       </TouchableOpacity>
     </View>
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-gradient-to-b from-slate-200 to-slate-300">
       <Header title={gameName} />
-      <ScrollView className="flex-1 p-4 bg-gray-100">
+      <ScrollView className="flex-1 p-6">
         {!gameFinished && (
-          <Text className="text-2xl font-bold mb-4">
-            Pregunta {currentQuestionIndex + 1} de {questions.length}
-          </Text>
+          <View className="bg-white p-4 mb-6 rounded-2xl shadow-lg">
+            <Text className="text-2xl font-bold text-center text-slate-800">
+              Pregunta {currentQuestionIndex + 1} de {questions.length}
+            </Text>
+          </View>
         )}
         {loading ? (
-          <Text className="text-center text-gray-500">
-            Cargando preguntas...
-          </Text>
+          <View className="bg-white p-6 rounded-2xl shadow-lg">
+            <Text className="text-center text-lg text-slate-800">
+              Cargando preguntas...
+            </Text>
+          </View>
         ) : error ? (
-          <Text className="text-center text-red-500">{error}</Text>
+          <View className="bg-white p-6 rounded-2xl shadow-lg">
+            <Text className="text-center text-lg text-red-600">{error}</Text>
+          </View>
         ) : gameFinished ? (
           renderGameFinished()
         ) : (

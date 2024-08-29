@@ -57,28 +57,41 @@ const Games = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-gradient-to-b from-green-400 to-emerald-600">
       <Header title="Juegos" />
-      <View className="flex-1 p-4 bg-gray-100">
-        <Text className="text-2xl font-bold mb-4">Juegos disponibles:</Text>
+      <View className="flex-1 p-6">
+        <Text className="text-3xl font-bold mb-6 text-white text-center">
+          ¡Elige tu juego!
+        </Text>
         <FlatList
           data={games}
           renderItem={({ item }) => (
             <TouchableOpacity
-              className="bg-white p-4 mb-2 rounded-lg shadow"
+              className="bg-white p-5 mb-4 rounded-2xl shadow-lg"
               onPress={() => handleGamePress(item)}
             >
-              <Text className="text-lg">{item.name}</Text>
+              <View className="flex-row items-center">
+                <View className="w-12 h-12 bg-lime-300 rounded-full mr-4 flex items-center justify-center">
+                  <Text className="text-2xl font-bold text-green-800">{item.name[0]}</Text>
+                </View>
+                <Text className="text-xl font-semibold text-green-800">{item.name}</Text>
+              </View>
             </TouchableOpacity>
           )}
           keyExtractor={(item) => item.id.toString()}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            <RefreshControl 
+              refreshing={refreshing} 
+              onRefresh={onRefresh}
+              colors={["#10B981"]} // Color verde esmeralda para el indicador de recarga
+            />
           }
           ListEmptyComponent={
-            <Text className="text-center text-gray-500">
-              {loading ? "Cargando juegos..." : "No hay juegos disponibles."}
-            </Text>
+            <View className="bg-white p-6 rounded-2xl shadow-lg">
+              <Text className="text-center text-lg text-green-800">
+                {loading ? "Cargando juegos..." : "No hay juegos disponibles."}
+              </Text>
+            </View>
           }
         />
       </View>

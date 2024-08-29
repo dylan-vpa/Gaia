@@ -14,10 +14,12 @@ const Layout = () => {
 
           if (route.name === "home") {
             iconName = focused ? "home" : "home-outline";
-          } else if (route.name === "profile") {
-            iconName = focused ? "person" : "person-outline";
           } else if (route.name === "games") {
             iconName = focused ? "game-controller" : "game-controller-outline";
+          } else if (route.name === "projects") {
+            iconName = focused ? "folder" : "folder-outline";
+          } else if (route.name === "profile") {
+            iconName = focused ? "person" : "person-outline";
           }
 
           return <Ionicons name={iconName} size={size} color={color} />;
@@ -36,6 +38,7 @@ const Layout = () => {
     >
       <Tabs.Screen name="home" />
       <Tabs.Screen name="games" />
+      <Tabs.Screen name="projects" />
       <Tabs.Screen name="profile" />
       <Tabs.Screen
         name="game"
