@@ -38,31 +38,38 @@ const Home = () => {
         className="w-full h-full absolute"
         resizeMode="cover"
       />
-      <View className="">
-        <View className="px-6 py-12 min-w-full bg-lightWhite rounded-t-3xl shadow-md">
+      <View className="w-full">
+        <View className="px-6 py-12 bg-transparent rounded-t-3xl">
           <View className="mb-6 flex gap-3">
-            <Text className="font-bold text-center text-xxLarge">
+            <Text className="font-bold text-center text-3xl text-[#3C3C3C]">
               ¡Aprende mientras juegas, investiga mientras creas!
             </Text>
-            <Text className="text-gray-600 text-center text-medium text-gray">
-              Registrate y empieza a aprender sobre nuestros ecosistemas
-              mientras e interactuas con nuestra comudidad
+            <Text className="text-center text-base text-[#777]">
+              Regístrate y empieza a aprender sobre nuestros ecosistemas
+              mientras interactúas con nuestra comunidad
             </Text>
           </View>
-          <View className="mt-6 flex gap-2 items-center">
+          <View className="mt-6 flex gap-4 items-center">
             <Link
               href="/auth/signup"
-              className="px-12 py-2 w-11/12 bg-primary text-white rounded-xl text-large text-center font-bold rounded-full"
+              className="w-full bg-[#58CC02] py-3 rounded-xl flex items-center justify-center text-center"
             >
-              Registrate
+              <Text className="text-white font-bold text-lg">
+                Regístrate
+              </Text>
             </Link>
-            <Link href="/auth/signin" className="text-large font-bold">
-              Inicia sesion
+            <Link
+              href="/auth/signin"
+              className="w-full border border-[#58CC02] py-3 rounded-xl flex items-center justify-center text-center"
+            >
+              <Text className="text-[#58CC02] font-bold text-lg">
+                Inicia sesión
+              </Text>
             </Link>
           </View>
         </View>
       </View>
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
     </SafeAreaView>
   );
 };

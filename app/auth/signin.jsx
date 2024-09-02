@@ -45,14 +45,14 @@ const SignIn = () => {
         className="w-full h-full absolute"
         resizeMode="cover"
       />
-      <View className="">
-        <View className="px-6 py-12 min-w-full bg-lightWhite rounded-t-3xl shadow-md">
-          <Text className="mb-3 font-bold text-center text-xxLarge">
-            Inicia sesion
+      <View className="w-full">
+        <View className="px-6 py-12 bg-transparent rounded-t-3xl">
+          <Text className="mb-6 font-bold text-center text-3xl text-[#3C3C3C]">
+            Inicia sesión
           </Text>
-          <View className="gap-3">
+          <View className="gap-4">
             <TextInput
-              className="px-4 py-3 bg-slate-100 rounded-full"
+              className="px-4 py-3 bg-[#F7F7F7] rounded-xl"
               placeholder="Email"
               value={email}
               onChangeText={(text) => setEmail(text)}
@@ -61,33 +61,33 @@ const SignIn = () => {
               keyboardType="email-address"
             />
             <TextInput
-              className="px-4 py-3 bg-slate-100 rounded-full"
-              placeholder="Password"
+              className="px-4 py-3 bg-[#F7F7F7] rounded-xl"
+              placeholder="Contraseña"
               value={password}
               onChangeText={(text) => setPassword(text)}
               secureTextEntry={true}
             />
             {error && (
-              <Text className="text-red font-large font-bold">{error}</Text>
+              <Text className="text-red-500 text-center font-bold">{error}</Text>
             )}
-            <View className="flex- items-center">
+            <View className="items-center gap-4">
               <TouchableOpacity
-                className="px-12 py-2 w-full bg-primary rounded-full"
+                className="w-full bg-[#58CC02] py-3 rounded-xl"
                 onPress={handleSignIn}
               >
-                <Text className="text-white text-large text-center font-bold">
-                  Inicia sesion
+                <Text className="text-white text-center font-bold text-lg">
+                  Iniciar sesión
                 </Text>
               </TouchableOpacity>
-              <Link href="/auth/signup" className="py-2 text-small font-bold">
-                ¿No tienes una cuenta? Registrate
+              <Link href="/auth/signup" className="text-[#58CC02] font-bold">
+                ¿No tienes una cuenta? Regístrate
               </Link>
             </View>
-            {loading && <ActivityIndicator size="large" color={colors.primary} />}
+            {loading && <ActivityIndicator size="large" color="#58CC02" />}
           </View>
         </View>
       </View>
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
     </SafeAreaView>
   );
 };

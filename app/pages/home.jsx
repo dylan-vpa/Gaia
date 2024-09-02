@@ -8,9 +8,11 @@ import {
   Text,
   ActivityIndicator,
   Modal,
+  SafeAreaView,
 } from "react-native";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { StatusBar } from "expo-status-bar";
 
 //Components
 import Header from "../../components/ui/Header";
@@ -59,21 +61,29 @@ const Home = () => {
 
   const renderPostCard = useCallback(
     ({ item }) => (
-      <PostCard post={item} session={session} onPostsChange={loadPosts} />
+      <PostCard 
+        post={item} 
+        session={session} 
+        onPostsChange={loadPosts} 
+        isOwnPost={item.user_id === session?.user?.id}
+      />
     ),
     [session, loadPosts]
   );
 
   if (loading) {
     return (
-      <View className="flex-1 justify-center items-center">
-        <ActivityIndicator size="large" color="#1DA1F2" />
-      </View>
+      <SafeAreaView className="flex-1 bg-white">
+        <Header />
+        <View className="flex-1 justify-center items-center">
+          <ActivityIndicator size="large" color="#58CC02" />
+        </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <View className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-white">
       <Header />
       <FlatList
         data={posts}
@@ -81,10 +91,11 @@ const Home = () => {
         keyExtractor={(item) => item.id.toString()}
         refreshing={loading}
         onRefresh={loadPosts}
+        contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16 }}
       />
       <TouchableOpacity
         onPress={() => setModalVisible(true)}
-        className="absolute bottom-6 right-6 bg-primary rounded-full p-4"
+        className="absolute bottom-6 right-6 bg-[#58CC02] rounded-full p-4 shadow-lg"
       >
         <Ionicons name="add" size={24} color="white" />
       </TouchableOpacity>
@@ -94,28 +105,28 @@ const Home = () => {
         visible={modalVisible}
         onRequestClose={() => setModalVisible(false)}
       >
-        <View className="flex-1 justify-end bg-transparent bg-opacity-50">
+        <View className="flex-1 justify-end bg-transparent">
           <View className="bg-white px-6 py-12 rounded-t-3xl">
             <TextInput
               value={newPost}
               onChangeText={setNewPost}
               placeholder="¿Qué está pasando?"
               multiline
-              className="border-b border-slate-200 pb-2 text-medium"
+              className="border-b border-slate-200 pb-2 text-lg"
             />
             <View className="flex-row justify-end items-center mt-4">
               <TouchableOpacity
                 onPress={() => setModalVisible(false)}
                 className="mr-4"
               >
-                <Text className="text-gray-500 font-bold">Cancelar</Text>
+                <Text className="text-[#3C3C3C] font-bold">Cancelar</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => {
                   handleCreatePost();
                   setModalVisible(false);
                 }}
-                className="bg-primary rounded-full px-4 py-2"
+                className="bg-[#58CC02] rounded-2xl px-6 py-3"
               >
                 <Text className="text-white font-bold">Publicar</Text>
               </TouchableOpacity>
@@ -123,7 +134,8 @@ const Home = () => {
           </View>
         </View>
       </Modal>
-    </View>
+      <StatusBar style="dark" />
+    </SafeAreaView>
   );
 };
 

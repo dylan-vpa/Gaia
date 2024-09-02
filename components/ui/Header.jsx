@@ -39,7 +39,7 @@ const Header = () => {
   };
 
   return (
-    <View className="flex-row justify-between items-center pt-12 px-4 bg-white">
+    <View className="flex-row justify-between items-center pt-12 px-4 bg-white mt-5">
       <TouchableOpacity onPress={() => router.push("./profile")}>
         {profilePicture && !imageError ? (
           <Image

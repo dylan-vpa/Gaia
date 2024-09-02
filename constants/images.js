@@ -1,3 +1,3 @@
-import WelcomeBg from "../assets/images/WelcomeBg.jpg"
+import WelcomeBg from "../assets/images/WelcomeBg.png"
 
 export default { WelcomeBg };

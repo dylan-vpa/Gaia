@@ -3,8 +3,9 @@ import { View, Text, TouchableOpacity, TextInput, Image, Modal, ActivityIndicato
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import Header from '../../components/ui/Header';
-import { checkSession, fetchProjects, createProject, fetchProjectStages, addProjectStage } from '../../utils/supabase/actions';
+import { checkSession, fetchProjects, createProject, fetchProjectStages, addProjectStage, deleteProject } from '../../utils/supabase/actions';
 import * as ImagePicker from 'expo-image-picker';
+import { StatusBar } from "expo-status-bar";
 
 const ResearchProjectsScreen = () => {
   const [session, setSession] = useState(null);
@@ -21,6 +22,8 @@ const ResearchProjectsScreen = () => {
   const [newStageContent, setNewStageContent] = useState('');
   const [newStageImage, setNewStageImage] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [projectToDelete, setProjectToDelete] = useState(null);
 
   const loadProjects = useCallback(async () => {
     if (!session || !session.user) return;
@@ -113,6 +116,23 @@ const ResearchProjectsScreen = () => {
     loadProjects().then(() => setRefreshing(false));
   }, [loadProjects]);
 
+  const handleDeleteProject = async () => {
+    if (!projectToDelete) return;
+    try {
+      await deleteProject(session.user.id, projectToDelete);
+      loadProjects();
+      setShowDeleteModal(false);
+      setProjectToDelete(null);
+    } catch (error) {
+      console.error('Error al eliminar proyecto:', error);
+    }
+  };
+
+  const openDeleteModal = (projectId) => {
+    setProjectToDelete(projectId);
+    setShowDeleteModal(true);
+  };
+
   if (loading) {
     return (
       <View className="flex-1 justify-center items-center">
@@ -122,28 +142,36 @@ const ResearchProjectsScreen = () => {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-gradient-to-b from-green-400 to-emerald-600">
+    <SafeAreaView className="flex-1 bg-white">
       <Header title="Proyectos de Investigación" />
-      <View className="flex-1 p-6">
-        <Text className="text-3xl font-bold mb-6 text-white text-center">
-          Tus Proyectos
+      <View className="flex-1 px-4 pt-6">
+        <Text className="text-3xl text-center font-bold mb-6 text-[#333]">
+          Proyectos
         </Text>
         <FlatList
           data={projects}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
             <TouchableOpacity
-              className="bg-white p-5 mb-4 rounded-2xl shadow-lg"
+              className="bg-white p-4 mb-4 border-b border-slate-200"
               onPress={() => handleSelectProject(item.id)}
+              onLongPress={() => openDeleteModal(item.id)}
             >
-              <View className="flex-row items-center">
-                <View className="w-12 h-12 bg-lime-300 rounded-full mr-4 flex items-center justify-center">
-                  <Text className="text-2xl font-bold text-green-800">{item.title[0]}</Text>
+              <View className="flex-row items-center justify-between">
+                <View className="flex-row items-center flex-1">
+                  <View className="w-12 h-12 bg-blue-200 rounded-lg mr-4 flex items-center justify-center">
+                    <Text className="text-2xl font-bold text-blue-500">
+                      {item.title.charAt(0).toUpperCase()}
+                    </Text>
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-lg font-semibold text-[#333]">{item.title}</Text>
+                    <Text className="text-sm text-gray-500" numberOfLines={2}>{item.description}</Text>
+                  </View>
                 </View>
-                <View className="flex-1">
-                  <Text className="text-xl font-semibold text-green-800">{item.title}</Text>
-                  <Text className="text-sm text-gray-600">{item.description}</Text>
-                </View>
+                <TouchableOpacity onPress={() => openDeleteModal(item.id)}>
+                  <Ionicons name="ellipsis-horizontal" size={24} color="#777" />
+                </TouchableOpacity>
               </View>
             </TouchableOpacity>
           )}
@@ -151,12 +179,12 @@ const ResearchProjectsScreen = () => {
             <RefreshControl 
               refreshing={refreshing} 
               onRefresh={onRefresh}
-              colors={["#10B981"]}
+              colors={["#58CC02"]}
             />
           }
           ListEmptyComponent={
-            <View className="bg-white p-6 rounded-2xl shadow-lg">
-              <Text className="text-center text-lg text-green-800">
+            <View className="bg-white p-6 rounded-xl">
+              <Text className="text-center text-lg text-gray-500">
                 No hay proyectos disponibles.
               </Text>
             </View>
@@ -165,10 +193,37 @@ const ResearchProjectsScreen = () => {
       </View>
       <TouchableOpacity
         onPress={() => setShowCreateModal(true)}
-        className="absolute bottom-6 right-6 bg-primary rounded-full p-4"
+        className="absolute bottom-6 right-6 bg-[#58CC02] rounded-full p-4 shadow-lg"
       >
         <Ionicons name="add" size={24} color="white" />
       </TouchableOpacity>
+
+      {/* Modal para confirmar eliminación de proyecto */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={showDeleteModal}
+        onRequestClose={() => setShowDeleteModal(false)}
+      >
+        <View className="flex-1 justify-end bg-transparent">
+          <View className="bg-white px-4 py-6 rounded-t-3xl">
+            <TouchableOpacity
+              onPress={handleDeleteProject}
+              className="py-6 border-b border-slate-200"
+            >
+              <Text className="text-red-500 text-center font-bold">
+                Eliminar proyecto
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => setShowDeleteModal(false)}
+              className="py-6"
+            >
+              <Text className="text-[#58CC02] text-center font-bold">Cancelar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
 
       {/* Modal para crear proyecto */}
       <Modal
@@ -179,15 +234,15 @@ const ResearchProjectsScreen = () => {
       >
         <View className="flex-1 bg-white">
           <View className="flex-1 p-4">
-            <Text className="text-2xl font-bold mb-4">Crear Nuevo Proyecto</Text>
+            <Text className="text-2xl font-bold mb-4 text-[#3C3C3C]">Crear Nuevo Proyecto</Text>
             <TextInput
-              className="bg-gray-100 p-2 mb-4 rounded"
+              className="bg-[#F7F7F7] p-3 mb-4 rounded-xl"
               placeholder="Título del proyecto"
               value={newProjectTitle}
               onChangeText={setNewProjectTitle}
             />
             <TextInput
-              className="bg-gray-100 p-2 mb-4 rounded"
+              className="bg-[#F7F7F7] p-3 mb-4 rounded-xl"
               placeholder="Descripción del proyecto"
               value={newProjectDescription}
               onChangeText={setNewProjectDescription}
@@ -198,15 +253,15 @@ const ResearchProjectsScreen = () => {
           <View className="p-4">
             <TouchableOpacity
               onPress={handleCreateProject}
-              className="bg-primary p-4 rounded-full mb-2"
+              className="bg-[#58CC02] p-4 rounded-xl mb-2"
             >
               <Text className="text-white font-bold text-center">Crear Proyecto</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => setShowCreateModal(false)}
-              className="p-4 rounded-full border border-primary"
+              className="p-4 rounded-xl border border-[#58CC02]"
             >
-              <Text className="text-primary font-bold text-center">Cancelar</Text>
+              <Text className="text-[#58CC02] font-bold text-center">Cancelar</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -221,22 +276,22 @@ const ResearchProjectsScreen = () => {
       >
         <SafeAreaView className="flex-1 bg-white">
           <View className="flex-1 p-4">
-            <Text className="text-2xl font-bold mb-4">Detalles del Proyecto</Text>
+            <Text className="text-2xl font-bold mb-4 text-[#3C3C3C]">Detalles del Proyecto</Text>
             <FlatList
               data={stages}
               keyExtractor={(item) => item.id.toString()}
               renderItem={({ item }) => (
-                <View className="bg-gray-100 p-4 mb-4 rounded-lg">
-                  <Text className="text-lg font-semibold mb-2">{item.title}</Text>
-                  <Text className="mb-2">{item.content}</Text>
+                <View className="bg-[#F7F7F7] p-4 mb-4 rounded-xl">
+                  <Text className="text-lg font-semibold mb-2 text-[#3C3C3C]">{item.title}</Text>
+                  <Text className="mb-2 text-[#777]">{item.content}</Text>
                   {item.image_url && (
-                    <Image source={{ uri: item.image_url }} className="w-full h-40 rounded" />
+                    <Image source={{ uri: item.image_url }} className="w-full h-40 rounded-xl" />
                   )}
                 </View>
               )}
               ListEmptyComponent={
-                <View className="bg-gray-100 p-4 rounded-lg">
-                  <Text className="text-center text-lg text-gray-600">
+                <View className="bg-[#F7F7F7] p-4 rounded-xl">
+                  <Text className="text-center text-lg text-[#777]">
                     No hay etapas disponibles.
                   </Text>
                 </View>
@@ -249,15 +304,15 @@ const ResearchProjectsScreen = () => {
                 setShowDetailModal(false);
                 setShowAddStageModal(true);
               }}
-              className="bg-primary p-4 rounded-full mb-2"
+              className="bg-[#58CC02] p-4 rounded-xl mb-2"
             >
               <Text className="text-white font-bold text-center">Agregar Etapa</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => setShowDetailModal(false)}
-              className="p-4 rounded-full border border-primary"
+              className="p-4 rounded-xl border border-[#58CC02]"
             >
-              <Text className="text-primary font-bold text-center">Cerrar</Text>
+              <Text className="text-[#58CC02] font-bold text-center">Cerrar</Text>
             </TouchableOpacity>
           </View>
         </SafeAreaView>
@@ -272,15 +327,15 @@ const ResearchProjectsScreen = () => {
       >
         <View className="flex-1 bg-white">
           <View className="flex-1 p-4">
-            <Text className="text-2xl font-bold mb-4">Agregar Nueva Etapa</Text>
+            <Text className="text-2xl font-bold mb-4 text-[#3C3C3C]">Agregar Nueva Etapa</Text>
             <TextInput
-              className="bg-gray-100 p-2 mb-4 rounded"
+              className="bg-[#F7F7F7] p-3 mb-4 rounded-xl"
               placeholder="Título de la etapa"
               value={newStageTitle}
               onChangeText={setNewStageTitle}
             />
             <TextInput
-              className="bg-gray-100 p-2 mb-4 rounded"
+              className="bg-[#F7F7F7] p-3 mb-4 rounded-xl"
               placeholder="Contenido de la etapa"
               value={newStageContent}
               onChangeText={setNewStageContent}
@@ -288,26 +343,27 @@ const ResearchProjectsScreen = () => {
               numberOfLines={4}
             />
             <TouchableOpacity onPress={pickImage} className="mb-4">
-              <Text className="text-primary font-bold">Seleccionar Imagen</Text>
+              <Text className="text-[#58CC02] font-bold">Seleccionar Imagen</Text>
             </TouchableOpacity>
-            {newStageImage && <Image source={{ uri: newStageImage }} className="w-full h-40 mb-4 rounded" />}
+            {newStageImage && <Image source={{ uri: newStageImage }} className="w-full h-40 mb-4 rounded-xl" />}
           </View>
           <View className="p-4">
             <TouchableOpacity
               onPress={handleAddStage}
-              className="bg-primary p-4 rounded-full mb-2"
+              className="bg-[#58CC02] p-4 rounded-xl mb-2"
             >
               <Text className="text-white font-bold text-center">Agregar Etapa</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => setShowAddStageModal(false)}
-              className="p-4 rounded-full border border-primary"
+              className="p-4 rounded-xl border border-[#58CC02]"
             >
-              <Text className="text-primary font-bold text-center">Cancelar</Text>
+              <Text className="text-[#58CC02] font-bold text-center">Cancelar</Text>
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
+      <StatusBar style="dark" />
     </SafeAreaView>
   );
 };

@@ -9,6 +9,7 @@ import {
   RefreshControl,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 
 //Supabase
 import { fetchGames } from "../../utils/supabase/actions";
@@ -57,24 +58,32 @@ const Games = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-gradient-to-b from-green-400 to-emerald-600">
+    <SafeAreaView className="flex-1 bg-white">
       <Header title="Juegos" />
-      <View className="flex-1 p-6">
-        <Text className="text-3xl font-bold mb-6 text-white text-center">
-          ¡Elige tu juego!
+      <View className="flex-1 px-4 pt-6">
+        <Text className="text-3xl font-bold mb-6 text-black text-center">
+          Juegos
         </Text>
         <FlatList
           data={games}
-          renderItem={({ item }) => (
+          renderItem={({ item, index }) => (
             <TouchableOpacity
-              className="bg-white p-5 mb-4 rounded-2xl shadow-lg"
+              className={`bg-white p-4 mb-4 rounded-3xl shadow-lg ${index === 0 ? 'border-4 border-yellow-400' : ''}`}
               onPress={() => handleGamePress(item)}
             >
-              <View className="flex-row items-center">
-                <View className="w-12 h-12 bg-lime-300 rounded-full mr-4 flex items-center justify-center">
-                  <Text className="text-2xl font-bold text-green-800">{item.name[0]}</Text>
+              <View className="flex-row items-center justify-between">
+                <View className="flex-row items-center">
+                  <View className={`w-16 h-16 ${index === 0 ? 'bg-yellow-400' : 'bg-[#58CC02]'} rounded-full mr-4 flex items-center justify-center`}>
+                    <Text className="text-3xl font-bold text-white">{index + 1}</Text>
+                  </View>
+                  <View>
+                    <Text className="text-lg font-semibold text-[#3C3C3C]">Unit {index + 1}</Text>
+                    <Text className="text-sm text-[#777]">{item.name}</Text>
+                  </View>
                 </View>
-                <Text className="text-xl font-semibold text-green-800">{item.name}</Text>
+                <View className="bg-[#E5E5E5] p-2 rounded-full">
+                  <Text className="text-[#58CC02] font-bold">▶</Text>
+                </View>
               </View>
             </TouchableOpacity>
           )}
@@ -83,18 +92,19 @@ const Games = () => {
             <RefreshControl 
               refreshing={refreshing} 
               onRefresh={onRefresh}
-              colors={["#10B981"]} // Color verde esmeralda para el indicador de recarga
+              colors={["#58CC02"]}
             />
           }
           ListEmptyComponent={
             <View className="bg-white p-6 rounded-2xl shadow-lg">
-              <Text className="text-center text-lg text-green-800">
+              <Text className="text-center text-lg text-[#3C3C3C]">
                 {loading ? "Cargando juegos..." : "No hay juegos disponibles."}
               </Text>
             </View>
           }
         />
       </View>
+      <StatusBar style="dark" />
     </SafeAreaView>
   );
 };

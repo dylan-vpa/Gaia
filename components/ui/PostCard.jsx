@@ -10,6 +10,7 @@ import {
   Image,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { Alert } from "react-native";
 
 //Supabase
 import {
@@ -25,7 +26,7 @@ import {
 //Colors
 import { colors } from "../../constants";
 
-const PostCard = ({ post, session, onPostsChange }) => {
+const PostCard = ({ post, session, onPostsChange, isOwnPost }) => {
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
   const [showComments, setShowComments] = useState(false);
@@ -107,8 +108,29 @@ const PostCard = ({ post, session, onPostsChange }) => {
     }
   };
 
+  const handleLongPress = () => {
+    if (isOwnPost) {
+      // Mostrar opción de borrar solo si es el post del usuario
+      Alert.alert(
+        "Borrar post",
+        "¿Estás seguro de que quieres borrar este post?",
+        [
+          { text: "Cancelar", style: "cancel" },
+          { 
+            text: "Borrar", 
+            onPress: handleDeletePost,
+            style: "destructive"
+          }
+        ]
+      );
+    }
+  };
+
   return (
-    <View className="bg-white p-4 border-b border-slate-200">
+    <TouchableOpacity 
+      onLongPress={handleLongPress}
+      className="bg-white p-4 mb-4 rounded-2xl shadow-sm border border-slate-200"
+    >
       <View className="flex-row items-center mb-2">
         {profilePicture && !imageError ? (
           <Image
@@ -117,16 +139,16 @@ const PostCard = ({ post, session, onPostsChange }) => {
             onError={handleImageError}
           />
         ) : (
-          <Ionicons name="person-circle-outline" size={40} color="gray" />
+          <Ionicons name="person-circle-outline" size={40} color="#58CC02" />
         )}
         <View className="ml-3">
-          <Text className="font-bold">{post.profiles.name}</Text>
-          <Text className="text-gray-500 text-sm">
+          <Text className="font-bold text-[#3C3C3C]">{post.profiles.name}</Text>
+          <Text className="text-[#777] text-sm">
             {new Date(post.created_at).toLocaleDateString()}
           </Text>
         </View>
       </View>
-      <Text className="mb-4">{post.content}</Text>
+      <Text className="mb-4 text-[#3C3C3C]">{post.content}</Text>
       <View className="flex-row justify-between items-center">
         <TouchableOpacity
           onPress={handleLikePost}
@@ -135,9 +157,9 @@ const PostCard = ({ post, session, onPostsChange }) => {
           <Ionicons
             name={isLikedByUser ? "heart" : "heart-outline"}
             size={20}
-            color={isLikedByUser ? colors.primary : "gray"}
+            color={isLikedByUser ? "#58CC02" : "#777"}
           />
-          <Text className="ml-2 text-gray-500">{post.likes_count || 0}</Text>
+          <Text className="ml-2 text-[#777]">{post.likes_count || 0}</Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => setShowComments(!showComments)}
@@ -146,16 +168,16 @@ const PostCard = ({ post, session, onPostsChange }) => {
           <Ionicons
             name={showComments ? "chatbubble" : "chatbubble-outline"}
             size={20}
-            color={showComments ? colors.primary : "gray"}
+            color={showComments ? "#58CC02" : "#777"}
           />
-          <Text className="ml-2 text-gray-500">{comments.length}</Text>
+          <Text className="ml-2 text-[#777]">{comments.length}</Text>
         </TouchableOpacity>
         {post.user_id === session?.user?.id && (
           <TouchableOpacity
             onPress={() => setShowDeleteModal(true)}
             className="flex-row items-center"
           >
-            <Ionicons name="ellipsis-horizontal" size={20} color="gray" />
+            <Ionicons name="ellipsis-horizontal" size={20} color="#777" />
           </TouchableOpacity>
         )}
       </View>
@@ -177,11 +199,11 @@ const PostCard = ({ post, session, onPostsChange }) => {
               value={newComment}
               onChangeText={setNewComment}
               placeholder="Escribe un comentario..."
-              className="flex-1 border border-gray-300 rounded-full px-4 py-2"
+              className="flex-1 border border-[#E5E5E5] rounded-full px-4 py-2"
             />
             <TouchableOpacity
               onPress={handleCreateComment}
-              className="bg-primary rounded-full p-2 ml-2 justify-center"
+              className="bg-[#58CC02] rounded-full p-2 ml-2 justify-center"
             >
               <Ionicons name="send" size={20} color="white" />
             </TouchableOpacity>
@@ -195,13 +217,13 @@ const PostCard = ({ post, session, onPostsChange }) => {
         visible={showDeleteModal}
         onRequestClose={() => setShowDeleteModal(false)}
       >
-        <View className="flex-1 justify-end bg-transparent bg-opacity-50">
-          <View className="bg-white px-4 py-6 rounded-t-lg">
+        <View className="flex-1 justify-end bg-transparent">
+          <View className="bg-white px-4 py-6 rounded-t-3xl">
             <TouchableOpacity
               onPress={handleDeletePost}
               className="py-6 border-b border-slate-200"
             >
-              <Text className="text-red-500 text-center">
+              <Text className="text-red-500 text-center font-bold">
                 Eliminar publicación
               </Text>
             </TouchableOpacity>
@@ -209,26 +231,26 @@ const PostCard = ({ post, session, onPostsChange }) => {
               onPress={() => setShowDeleteModal(false)}
               className="py-6"
             >
-              <Text className="text-primary text-center">Cancelar</Text>
+              <Text className="text-[#58CC02] text-center font-bold">Cancelar</Text>
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
-    </View>
+    </TouchableOpacity>
   );
 };
 
 const Comment = ({ comment, session, onDeleteComment }) => (
-  <View className="mt-2 pb-2 border-b border-gray-100">
+  <View className="mt-2 pb-2 border-b border-slate-200">
     <View className="flex-row justify-between">
-      <Text className="font-bold">{comment.profiles.name}</Text>
+      <Text className="font-bold text-[#3C3C3C]">{comment.profiles.name}</Text>
       {comment.user_id === session?.user?.id && (
         <TouchableOpacity onPress={() => onDeleteComment(comment.id)}>
-          <Ionicons name="trash-outline" size={20} color="gray" />
+          <Ionicons name="trash-outline" size={20} color="#777" />
         </TouchableOpacity>
       )}
     </View>
-    <Text className="mt-1">{comment.content}</Text>
+    <Text className="mt-1 text-[#3C3C3C]">{comment.content}</Text>
   </View>
 );
 

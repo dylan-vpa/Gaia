@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { View, Text, TouchableOpacity, Image, Modal, TextInput, Alert, ActivityIndicator, ScrollView, SafeAreaView } from "react-native";
+import { SafeAreaView, View, Text, TouchableOpacity, Image, Modal, TextInput, Alert, ActivityIndicator, ScrollView, Platform } from "react-native";
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
 import { Ionicons } from "@expo/vector-icons";
@@ -7,6 +8,7 @@ import { supabase } from "../../utils/supabase/client";
 import { signOut, uploadProfilePicture, fetchProjects, fetchPosts, updateUserProfile, fetchUserProfile } from "../../utils/supabase/actions";
 import { colors } from "../../constants";
 import ProfilePostCard from "../../components/ui/ProfilePostCard";
+import { StatusBar } from "expo-status-bar";
 
 const EditProfileModal = ({ visible, onClose, onUpdateProfile, currentUser, currentProfilePicture, onUpdatePhoto }) => {
   const [name, setName] = useState(currentUser?.name || '');
@@ -113,6 +115,7 @@ const Profile = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [projects, setProjects] = useState([]);
   const [posts, setPosts] = useState([]);
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     const loadSession = async () => {
@@ -212,26 +215,27 @@ const Profile = () => {
 
   const renderProjects = () => (
     <View>
-      <View className="items-center mb-4">
-        <Text className="text-lg font-bold">Proyectos</Text>
-      </View>
+      <Text className="text-2xl font-bold mb-4 text-[#333]">Proyectos</Text>
       {projects.map((item) => (
         <TouchableOpacity
           key={item.id.toString()}
-          className="bg-white p-5 mb-4 rounded-2xl shadow-lg"
+          className="bg-white p-4 mb-4 border-b border-slate-200"
           onPress={() => {/* Manejar la selección del proyecto */}}
         >
           <View className="flex-row items-center">
-            <View className="w-12 h-12 bg-lime-300 rounded-full mr-4 flex items-center justify-center">
-              <Text className="text-2xl font-bold text-green-800">{item.title[0]}</Text>
+            <View className="w-12 h-12 bg-blue-200 rounded-lg mr-4 flex items-center justify-center">
+              <Text className="text-2xl font-bold text-blue-500">{item.title[0].toUpperCase()}</Text>
             </View>
-            <Text className="text-xl font-semibold text-green-800">{item.title}</Text>
+            <View className="flex-1">
+              <Text className="text-lg font-semibold text-[#333]">{item.title}</Text>
+              <Text className="text-sm text-gray-500" numberOfLines={1}>{item.description || 'Sin descripción'}</Text>
+            </View>
           </View>
         </TouchableOpacity>
       ))}
       {projects.length === 0 && (
-        <View className="bg-white p-6 rounded-2xl shadow-lg mb-4">
-          <Text className="text-center text-lg text-green-800">
+        <View className="bg-white p-6 rounded-xl border border-slate-200">
+          <Text className="text-center text-lg text-gray-500">
             No hay proyectos disponibles.
           </Text>
         </View>
@@ -241,9 +245,7 @@ const Profile = () => {
 
   const renderPosts = () => (
     <View>
-      <View className="items-center mb-4">
-        <Text className="text-lg font-bold">Publicaciones</Text>
-      </View>
+      <Text className="text-2xl font-bold mb-4 mt-6 text-[#333]">Publicaciones</Text>
       {posts.map((item) => (
         <ProfilePostCard
           key={item.id.toString()}
@@ -253,8 +255,8 @@ const Profile = () => {
         />
       ))}
       {posts.length === 0 && (
-        <View className="bg-white p-6 rounded-2xl shadow-lg mb-4">
-          <Text className="text-center text-lg text-green-800">
+        <View className="bg-white p-6 rounded-xl border border-slate-200">
+          <Text className="text-center text-lg text-gray-500">
             No hay publicaciones disponibles.
           </Text>
         </View>
@@ -264,41 +266,48 @@ const Profile = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <ScrollView className="flex-1">
-        <View className="p-4">
-          <View className="flex-row items-center mb-4 mt-12">
-            {profilePicture ? (
-              <Image
-                source={{ uri: profilePicture }}
-                className="w-16 h-16 rounded-full mr-4"
-              />
-            ) : (
-              <Ionicons name="person-circle-outline" size={64} color="gray" className="mr-4" />
-            )}
-            <View className="flex-1 flex-row items-center justify-between">
-              <Text className="text-xl font-bold">{userName}</Text>
-              <TouchableOpacity onPress={() => setModalVisible(true)}>
-                <Ionicons name="create-outline" size={24} color={colors.primary} />
-              </TouchableOpacity>
+      <View style={{ paddingTop: insets.top, paddingBottom: insets.bottom }} className="flex-1">
+        <ScrollView className="flex-1">
+          <View className="p-4">
+            <View className="flex-row items-center mb-6 mt-4">
+              {profilePicture ? (
+                <Image
+                  source={{ uri: profilePicture }}
+                  className="w-20 h-20 rounded-full mr-4"
+                />
+              ) : (
+                <Ionicons name="person-circle-outline" size={80} color="#58CC02" className="mr-4" />
+              )}
+              <View className="flex-1">
+                <Text className="text-2xl font-bold text-[#333]">{userName}</Text>
+                <TouchableOpacity 
+                  onPress={() => setModalVisible(true)}
+                  className="bg-[#E5E5E5] px-4 py-2 rounded-2xl mt-2 flex-row items-center justify-center"
+                >
+                  <Text className="text-[#58CC02] font-bold text-center mr-2">Editar Perfil</Text>
+                  <Ionicons name="pencil" size={16} color="#58CC02" />
+                </TouchableOpacity>
+              </View>
             </View>
+
+            {renderProjects()}
+            {renderPosts()}
+
+            {error && <Text className="text-red-500 font-bold mt-2">{error}</Text>}
+            {loading && <ActivityIndicator size="large" color="#58CC02" className="mt-2" />}
           </View>
+        </ScrollView>
 
-          {renderProjects()}
-          {renderPosts()}
-
-          {error && <Text className="text-red-500 font-bold mt-2">{error}</Text>}
-          {loading && <ActivityIndicator size="large" color={colors.primary} className="mt-2" />}
+        {/* Botón de cerrar sesión fijo en la parte inferior */}
+        <View className="p-4 bg-white border-t border-slate-200">
+          <TouchableOpacity
+            className="bg-[#58CC02] p-4 rounded-2xl flex-row items-center justify-center"
+            onPress={handleSignOut}
+          >
+            <Text className="text-white font-bold text-center mr-2">Cerrar Sesión</Text>
+            <Ionicons name="log-out-outline" size={20} color="white" />
+          </TouchableOpacity>
         </View>
-      </ScrollView>
-
-      {/* Botón de cerrar sesión fijo en la parte inferior */}
-      <View className="absolute bottom-0 left-0 right-0 p-4 bg-white">
-        <TouchableOpacity
-          className="bg-primary p-4 rounded-full"
-          onPress={handleSignOut}
-        >
-          <Text className="text-white text-center font-bold">Cerrar Sesión</Text>
-        </TouchableOpacity>
       </View>
 
       <EditProfileModal
@@ -309,6 +318,7 @@ const Profile = () => {
         currentProfilePicture={profilePicture}
         onUpdatePhoto={handleUploadPhoto}
       />
+      <StatusBar style="dark" />
     </SafeAreaView>
   );
 };

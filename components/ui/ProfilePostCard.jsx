@@ -40,8 +40,11 @@ const ProfilePostCard = ({ post, session, onPostsChange }) => {
   };
 
   return (
-    <View className="bg-white p-4 border-b border-slate-200">
-      <View className="flex-row justify-between items-start mb-2">
+    <TouchableOpacity 
+      onLongPress={() => setShowDeleteModal(true)}
+      className="bg-white p-4 mb-4 rounded-2xl shadow-sm border border-slate-200"
+    >
+      <View className="flex-row justify-between items-center mb-2">
         <View className="flex-row items-center">
           {profilePicture && !imageError ? (
             <Image
@@ -50,23 +53,20 @@ const ProfilePostCard = ({ post, session, onPostsChange }) => {
               onError={handleImageError}
             />
           ) : (
-            <Ionicons name="person-circle-outline" size={40} color="gray" />
+            <Ionicons name="person-circle-outline" size={40} color="#58CC02" />
           )}
-          <View className="ml-3">
-            <Text className="font-bold">You</Text>
-            <Text className="text-gray-500 text-sm">
-              {new Date(post.created_at).toLocaleDateString()}
-            </Text>
-          </View>
+          <Text className="ml-3 text-[#777] text-sm">
+            {new Date(post.created_at).toLocaleDateString()}
+          </Text>
         </View>
         <TouchableOpacity
           onPress={() => setShowDeleteModal(true)}
           className="p-2"
         >
-          <Ionicons name="ellipsis-horizontal" size={20} color="gray" />
+          <Ionicons name="ellipsis-horizontal" size={20} color="#777" />
         </TouchableOpacity>
       </View>
-      <Text className="mb-4">{post.content}</Text>
+      <Text className="text-[#3C3C3C]">{post.content}</Text>
 
       <Modal
         animationType="slide"
@@ -74,13 +74,13 @@ const ProfilePostCard = ({ post, session, onPostsChange }) => {
         visible={showDeleteModal}
         onRequestClose={() => setShowDeleteModal(false)}
       >
-        <View className="flex-1 justify-end bg-transparent bg-opacity-50">
-          <View className="bg-white px-4 py-6 rounded-t-lg">
+        <View className="flex-1 justify-end bg-transparent">
+          <View className="bg-white px-4 py-6 rounded-t-3xl">
             <TouchableOpacity
               onPress={handleDeletePost}
               className="py-6 border-b border-slate-200"
             >
-              <Text className="text-red-500 text-center">
+              <Text className="text-red-500 text-center font-bold">
                 Eliminar publicación
               </Text>
             </TouchableOpacity>
@@ -88,12 +88,12 @@ const ProfilePostCard = ({ post, session, onPostsChange }) => {
               onPress={() => setShowDeleteModal(false)}
               className="py-6"
             >
-              <Text className="text-primary text-center">Cancelar</Text>
+              <Text className="text-[#58CC02] text-center font-bold">Cancelar</Text>
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
-    </View>
+    </TouchableOpacity>
   );
 };
 

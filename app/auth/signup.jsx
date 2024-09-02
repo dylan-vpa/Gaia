@@ -43,48 +43,51 @@ const SignUp = () => {
         className="w-full h-full absolute"
         resizeMode="cover"
       />
-      <View className="">
-        <View className="px-6 py-12 min-w-full bg-lightWhite rounded-t-3xl shadow-md">
-          <Text className="mb-3 font-bold text-center text-xxLarge">Registrate</Text>
-          <View className="gap-3">
-          <TextInput
-            className="px-4 py-3 bg-slate-100 rounded-full"
-            placeholder="Email"
-            value={email}
-            onChangeText={(text) => setEmail(text)}
-            keyboardType="email-address"
-          />
-          <TextInput
-            className="px-4 py-3 bg-slate-100 rounded-full"
-            placeholder="Password"
-            value={password}
-            onChangeText={(text) => setPassword(text)}
-            secureTextEntry={true}
-          />
-          <TextInput
-            className="px-4 py-3 bg-slate-100 rounded-full"
-            placeholder="Confirm Password"
-            value={confirmPassword}
-            onChangeText={(text) => setConfirmPassword(text)}
-            secureTextEntry={true}
-          />
-          {error && <Text className="text-red font-large font-bold">{error}</Text>}
-          <View className="items-center">
-            <TouchableOpacity className="px-12 py-2 w-full bg-primary rounded-full" onPress={handleSignUp}>
-              <Text className="text-white text-large text-center font-bold">Registrate</Text>
-            </TouchableOpacity>
-            <Link href="/auth/signin" className="py-2 text-small font-bold">
-              ¿Ya tienes una cuenta? Inicia sesion
-            </Link>
-          </View>
-          {loading && (
-              <ActivityIndicator size="large" color={colors.primary} />
+      <View className="w-full">
+        <View className="px-6 py-12 bg-transparent rounded-t-3xl">
+          <Text className="mb-6 font-bold text-center text-3xl text-[#3C3C3C]">Regístrate</Text>
+          <View className="gap-4">
+            <TextInput
+              className="px-4 py-3 bg-[#F7F7F7] rounded-xl"
+              placeholder="Email"
+              value={email}
+              onChangeText={(text) => setEmail(text)}
+              keyboardType="email-address"
+            />
+            <TextInput
+              className="px-4 py-3 bg-[#F7F7F7] rounded-xl"
+              placeholder="Contraseña"
+              value={password}
+              onChangeText={(text) => setPassword(text)}
+              secureTextEntry={true}
+            />
+            <TextInput
+              className="px-4 py-3 bg-[#F7F7F7] rounded-xl"
+              placeholder="Confirmar Contraseña"
+              value={confirmPassword}
+              onChangeText={(text) => setConfirmPassword(text)}
+              secureTextEntry={true}
+            />
+            {error && <Text className="text-red-500 text-center font-bold">{error}</Text>}
+            <View className="items-center gap-4">
+              <TouchableOpacity 
+                className="w-full bg-[#58CC02] py-3 rounded-xl" 
+                onPress={handleSignUp}
+              >
+                <Text className="text-white text-center font-bold text-lg">Registrarse</Text>
+              </TouchableOpacity>
+              <Link href="/auth/signin" className="text-[#58CC02] font-bold">
+                ¿Ya tienes una cuenta? Inicia sesión
+              </Link>
+            </View>
+            {loading && (
+              <ActivityIndicator size="large" color="#58CC02" />
             )}
           </View>
         </View>
       </View>
-      <StatusBar style="light" />
-    </SafeAreaView >
+      <StatusBar style="dark" />
+    </SafeAreaView>
   );
 };
 
